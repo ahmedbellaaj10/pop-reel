@@ -1,92 +1,84 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { SignInButton, SignUpButton } from "@clerk/nextjs";
 
-export default function Page() {
-  const videos = ["/videos/tiktok1.mp4", "/videos/tiktok2.mp4", "/videos/tiktok3.mp4"];
-  const [soundEnabled, setSoundEnabled] = useState(false);
+export default function MainPage() {
+  const router = useRouter();
 
-  const handleSoundEnable = () => {
-    setSoundEnabled(true); // Allow videos to play with sound
+  const handleExploreReels = () => {
+    router.push("/feed"); // Navigate to the videos feed page
   };
 
   return (
-    <main className="snap-y snap-mandatory scroll-smooth overflow-y-scroll h-screen relative">
-      {videos.map((video, index) => (
-        <VideoSection key={index} src={video} soundEnabled={soundEnabled} />
-      ))}
-      {!soundEnabled && (
-        <Modal onConfirm={handleSoundEnable} />
-      )}
-    </main>
-  );
-}
+    <main
+      className="relative h-screen w-screen flex flex-col items-center justify-center bg-cover bg-center"
+    >
+      {/* Blurred Background */}
+      <div
+        className="absolute inset-0 bg-cover bg-center filter blur-lg"
+        style={{ backgroundImage: "url('/background.png')" }}
+      ></div>
 
-function Modal({ onConfirm }: { onConfirm: () => void }) {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
-        <h2 className="text-lg text-gray-900 font-semibold mb-4">Enable Sound</h2>
-        <p className="text-sm text-gray-600 mb-6">
-          Would you like to enable sound for the videos?
-        </p>
-        <div className="flex justify-center gap-4">
+      {/* Content Section */}
+      <div className="relative z-10 flex flex-col items-center">
+        {/* Logo Section */}
+        <div className="mb-6">
+          <Image
+            src="/logo.png"
+            alt="Reel-Pop Logo"
+            width={150}
+            height={150}
+            className="rounded-full"
+            priority
+          />
+        </div>
+
+        {/* Motto Section 1 */}
+        <h1 className="text-blue-900 text-5xl font-bold text-center drop-shadow-lg">
+          Pop Reel - Mini TikTok Clone
+        </h1>
+
+        {/* Separator */}
+        <div className="my-4 w-12 border-t-4 border-blue-900"></div>
+
+        {/* Motto Section 2 */}
+        <h1 className="text-blue-900 text-4xl font-bold text-center drop-shadow-lg">
+          Pop into the Spotlight!
+        </h1>
+
+        {/* Buttons Section */}
+        <div className="mt-10 flex flex-wrap gap-4 justify-center">
+          {/* Explore Reels Button */}
           <button
-            onClick={() => onConfirm()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
+            onClick={handleExploreReels}
+            className="px-6 py-3 bg-pink-600 text-white text-lg font-semibold rounded-lg shadow-lg hover:bg-pink-500 transition"
           >
-            Yes, Enable Sound
+            Explore Reels     
+            <br />
+            (Guest Mode)
           </button>
-          <button
-            onClick={() => {}}
-            className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400"
-          >
-            No, Keep Muted
-          </button>
+
+          {/* Sign In Button */}
+          <SignInButton mode="modal">
+            <button className="px-6 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg shadow-lg hover:bg-blue-500 transition">
+              Sign In 
+              <br />(Connect to your account)
+            </button>
+          </SignInButton>
+
+          {/* Sign Up Button */}
+          <SignUpButton mode="modal">
+            <button className="px-6 py-3 bg-lime-600 text-white text-lg font-semibold rounded-lg shadow-lg hover:bg-lime-500 transition">
+              Sign Up 
+              <br />
+              (Create a new account)
+            </button>
+          </SignUpButton>
         </div>
       </div>
-    </div>
-  );
-}
-
-function VideoSection({ src, soundEnabled }: { src: string; soundEnabled: boolean }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const video = entry.target as HTMLVideoElement;
-          if (entry.isIntersecting) {
-            video.muted = !soundEnabled; // Unmute if sound is enabled
-            video.play();
-          } else {
-            video.pause();
-            video.currentTime = 0; // Reset to start
-          }
-        });
-      },
-      { threshold: 0.7 } // Trigger when 70% of the video is visible
-    );
-
-    const video = videoRef.current;
-    if (video) observer.observe(video);
-
-    return () => {
-      if (video) observer.unobserve(video);
-    };
-  }, [soundEnabled]);
-
-  return (
-    <div className="snap-start flex justify-center items-center h-screen bg-gray-900">
-      <video
-        ref={videoRef}
-        src={src}
-        playsInline
-        loop
-        controls
-        className="w-auto h-full object-contain"
-      />
-    </div>
+    </main>
   );
 }
